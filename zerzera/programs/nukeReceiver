@@ -18,7 +18,7 @@ local pModem      = p.wrap(sModem)
 local pMonitor    = p.wrap(sMonitor)
 local iBorder     = colors.white
 local iBackground = colors.red
-local iTextColor  = colors.red
+local iTextColor  = colors.white
 
 local tParams     = {
   perc        = 10,
@@ -30,15 +30,16 @@ local tParams     = {
 
 -- Initialize monitor
 local xSize,ySize = pMonitor.getSize()
-local top, right, bottom, left = 2, xSize-1, ySize-1, 2
+local top, right, bottom, left = math.ceil(ySize*0.25), xSize-1, ySize-1, 2
+
 pMonitor.clear()
 pMonitor.setCursorPos(1,1)
 pMonitor.setTextScale(0.5)
 pMonitor.setTextColor(iTextColor)
 pMonitor.setBackgroundColor(colors.black)
 
--- Draw the box
-for y=left, bottom do
+-- Draw the border
+for y=top, bottom do
     pMonitor.setBackgroundColor(iBorder)
 
     if y == top or y == bottom then
@@ -57,27 +58,33 @@ for y=left, bottom do
     pMonitor.setBackgroundColor(colors.black)
 end
 
-local drawBackground = function(percentage)
-    -- Calculate starting point from the top
-    local yStart = bottom - 1 - math.floor(bottom / 100 * percentage)
+-- Calculate center text
+local tPercentage = tParams["perc"].."%"
+local innerWidth  = (right - 1) - (left + 1);
+local innerHeight = (bottom - 1) - (top + 1);
+local margin = math.ceil((innerWidth - #tPercentage)/2)
 
-    -- Draw the background
-    for y=left+1, bottom-1 do
-        if(y == yStart) then
-            
-        end
-        if(y >= yStart) then
-            pMonitor.setBackgroundColor(iBackground)
-        end
-        for x=left+1, right-1 do
-            pMonitor.setCursorPos(x,y)
-            pMonitor.write(" ")
-        end
-        pMonitor.setBackgroundColor(colors.black)
+-- Calculate starting point from the top
+local yStart = innerWidth - math.floor( innerWidth / 100 * tParams["perc"])
+
+-- Draw the background
+for y=top+1, bottom-1 do
+    pMonitor.setBackgroundColor(colors.black)
+    if(y >= yStart) then
+        pMonitor.setBackgroundColor(iBackground)
     end
+    for x=left+1, right-1 do
+      pMonitor.setCursorPos(x,y)
+      pMonitor.write(" ")
+    end
+    pMonitor.setBackgroundColor(colors.black)
 end
 
-drawBackground(10)
+-- Write percentaged centered on background
+pMonitor.setBackgroundColor(iBackground)
+pMonitor.setTextColor(iTextColor)
+pMonitor.setCursorPos(left+1+margin,yStart+1)
+pMonitor.write(tPercentage)
 
 -- Initialize modem
 pModem.open(sPort)
