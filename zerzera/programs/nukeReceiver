@@ -13,24 +13,33 @@ if( sPort == nil) then sPort = 123 end
 
 if not sModem or not sMonitor then print('Usage: nukeReceiver [modem side] [monitor side] {Listen port}') error() end
 
-local p         = peripheral
-local pModem    = p.wrap(sModem)
-local pMonitor  = p.wrap(sMonitor)
-local paint     = paintutils
+local p           = peripheral
+local pModem      = p.wrap(sModem)
+local pMonitor    = p.wrap(sMonitor)
+local iBorder     = colors.white
+local iBackground = colors.red
+local iTextColor  = colors.red
+
+local tParams     = {
+  perc        = 10,
+  EUStored    = 12345,
+  EUCapacity  = 400000,
+  status      = "off",
+  label       = "nuke 1"
+}
 
 -- Initialize monitor
 local xSize,ySize = pMonitor.getSize()
 local top, right, bottom, left = 2, xSize-1, ySize-1, 2
---out.redirect(pMonitor)
 pMonitor.clear()
 pMonitor.setCursorPos(1,1)
 pMonitor.setTextScale(0.5)
-pMonitor.setTextColor(colors.white)
+pMonitor.setTextColor(iTextColor)
 pMonitor.setBackgroundColor(colors.black)
 
 -- Draw the box
-for y=2, ySize-1 do
-    pMonitor.setBackgroundColor(colors.white)
+for y=left, bottom do
+    pMonitor.setBackgroundColor(iBorder)
 
     if y == top or y == bottom then
         for x=left, right do
@@ -48,7 +57,27 @@ for y=2, ySize-1 do
     pMonitor.setBackgroundColor(colors.black)
 end
 
---paint.drawLine(2, 2, 2, ySize -1, colors.white)
+local drawBackground = function(percentage)
+    -- Calculate starting point from the top
+    local yStart = bottom - 1 - math.floor(bottom / 100 * percentage)
 
--- Intialize modem
+    -- Draw the background
+    for y=left+1, bottom-1 do
+        if(y == yStart) then
+            
+        end
+        if(y >= yStart) then
+            pMonitor.setBackgroundColor(iBackground)
+        end
+        for x=left+1, right-1 do
+            pMonitor.setCursorPos(x,y)
+            pMonitor.write(" ")
+        end
+        pMonitor.setBackgroundColor(colors.black)
+    end
+end
+
+drawBackground(10)
+
+-- Initialize modem
 pModem.open(sPort)
