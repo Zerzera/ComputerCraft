@@ -14,10 +14,10 @@ local slots     = {}
 local replacing = {}
 local ccSlots   = {}
 local emptySlots= 0
-local pattern = ""
-local maxEU = mfsu.getEUCapacity()
+local pattern      = ""
+local maxEU        = mfsu.getEUCapacity()
 local pModem       = p.wrap(config.locations.modem)
-local modemPresent = p.open(123)
+local modemPresent = pModem.open(123)
 
 term.clear()
 term.setCursorPos(1,1)
