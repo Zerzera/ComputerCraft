@@ -24,10 +24,11 @@ local tParams     = {
   label       = "nuke 1"
 }
 
--- Initialize monitor
-local xSize,ySize = pMonitor.getSize()
-local top, right, bottom, left = math.ceil(ySize*0.20), xSize-1, ySize-1, 2
 updateScreen = function(tParams)
+    -- Initialize monitor
+    local xSize,ySize = pMonitor.getSize()
+    local top, right, bottom, left = math.ceil(ySize*0.20), xSize-1, ySize-1, 2
+
     pMonitor.clear()
     pMonitor.setCursorPos(1,1)
     pMonitor.setTextScale(0.5)
