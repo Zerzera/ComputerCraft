@@ -1,0 +1,12 @@
+tArgs = {}
+
+if  #tArgs == 0 then
+   print('Usage: nukeReceiver [modem side] [monitor side]')
+   return false
+end
+
+sModem   = tArgs[1]
+sMonitor = tArgs[2]
+
+
+if not sModem or not sMonitor then print('Usage: nukeReceiver [modem side] [monitor side]') return false end
