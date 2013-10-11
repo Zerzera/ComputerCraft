@@ -1,11 +1,12 @@
 local programPath = "programs"
 local apiPath     = "rom/apis/"
 local apis = {
-  "h" = "Help API"
+  h = "Help API"
 }
 
+-- Get the files from the master branch
 local getFromRepo = function(file)
-  git.get("Zerzera", "ComputerCraft", "master", "/"..file, .. file)
+  git.get("Zerzera", "ComputerCraft", "master", "/"..file, file)
 end
 
 -- Add programs
