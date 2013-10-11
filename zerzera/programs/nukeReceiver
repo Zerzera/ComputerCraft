@@ -21,8 +21,8 @@ local iBackground = colors.red
 local iTextColor  = colors.white
 
 local tParams     = {
-  perc        = 10,
-  EUStored    = 12345,
+  perc        = 100,
+  EUStored    = 400000,
   EUCapacity  = 400000,
   status      = "off",
   label       = "nuke 1"
@@ -30,13 +30,21 @@ local tParams     = {
 
 -- Initialize monitor
 local xSize,ySize = pMonitor.getSize()
-local top, right, bottom, left = math.ceil(ySize*0.25), xSize-1, ySize-1, 2
+local top, right, bottom, left = math.ceil(ySize*0.20), xSize-1, ySize-1, 2
 
 pMonitor.clear()
 pMonitor.setCursorPos(1,1)
 pMonitor.setTextScale(0.5)
 pMonitor.setTextColor(iTextColor)
 pMonitor.setBackgroundColor(colors.black)
+
+for y=1, bottom do
+    pMonitor.setBackgroundColor(colors.black)
+    for x=left, right do
+      pMonitor.setCursorPos(x,y)
+      pMonitor.write(" ")
+    end
+end
 
 -- Draw the border
 for y=top, bottom do
@@ -59,13 +67,11 @@ for y=top, bottom do
 end
 
 -- Calculate center text
-local tPercentage = tParams["perc"].."%"
 local innerWidth  = (right - 1) - (left + 1);
 local innerHeight = (bottom - 1) - (top + 1);
-local margin = math.ceil((innerWidth - #tPercentage)/2)
 
 -- Calculate starting point from the top
-local yStart = innerWidth - math.floor( innerWidth / 100 * tParams["perc"])
+local yStart = top + innerHeight - math.floor( innerHeight / 100 * tParams["perc"])
 
 -- Draw the background
 for y=top+1, bottom-1 do
@@ -80,11 +86,43 @@ for y=top+1, bottom-1 do
     pMonitor.setBackgroundColor(colors.black)
 end
 
--- Write percentaged centered on background
+-- Write percentage centred on background
+local sPercentage = tParams["perc"].."%"
+local margin = math.ceil((innerWidth - #sPercentage)/2)
+
 pMonitor.setBackgroundColor(iBackground)
-pMonitor.setTextColor(iTextColor)
-pMonitor.setCursorPos(left+1+margin,yStart+1)
-pMonitor.write(tPercentage)
+pMonitor.setCursorPos(left+1+margin, yStart+(math.ceil(innerHeight*0.05)))
+pMonitor.write(sPercentage)
+pMonitor.setBackgroundColor(colors.black)
+
+-- Write label centred on background, 5% from top
+local sLabel = tParams["label"]
+local margin = math.ceil((right - #sLabel)/2)
+pMonitor.setCursorPos(left+margin, math.floor(ySize*0.05))
+pMonitor.write( (sLabel:gsub("^%l", string.upper)))
+pMonitor.setBackgroundColor(colors.black)
+
+-- Write reactor status on the right side, 15% from top
+local sStatus = tParams["status"]
+if(sStatus == "on") then
+    pMonitor.setBackgroundColor(colors.green)
+else
+    pMonitor.setBackgroundColor(colors.red)
+end
+pMonitor.setCursorPos((right-#sStatus), math.floor(ySize*0.15))
+pMonitor.write(" ")
+pMonitor.setBackgroundColor(colors.black)
+
+pMonitor.write(" ")
+pMonitor.write( (sStatus:gsub("^%l", string.upper)))
+pMonitor.setBackgroundColor(colors.black)
+
+-- Write reactor EU amount stored, 15% from top
+local sStored = tParams["EUStored"]
+pMonitor.setCursorPos(left, math.floor(ySize*0.15))
+pMonitor.write( sStored .. "EU")
+pMonitor.setBackgroundColor(colors.black)
+
 
 -- Initialize modem
 pModem.open(sPort)
