@@ -1,7 +1,0 @@
--- Nuke 5 @ id 16
-os.unloadAPI("config")
-os.loadAPI("config")
-os.unloadAPI("h")
-os.loadAPI("h")
-
-shell.run("nuke")
