@@ -57,9 +57,12 @@ newFolder = function(dir)
   end
 end
 
+term.setCursorPos(1,1) -- Reset cursor position
+term.clear()           -- Clear screen
+
 -- Create folder structure
-newFolder(mainFolder..programFolder)  -- Add programs
-newFolder(mainFolder..apiFolder)  -- Add programs
+newFolder(mainFolder..programFolder)  -- Add programs folder
+newFolder(mainFolder..apiFolder)      -- Add APIs folder
 
 -- Add necessary APIs
 for k,v in pairs(apis) do 
@@ -81,5 +84,6 @@ end
 
 -- Install config placeholder, if it doesn't already exists.
 if(fs.exists(mainFolder .. configFile) == false) then
+  print("Installing a fresh config file!")  
   getFromRepo(mainFolder .. configFile)
 end
