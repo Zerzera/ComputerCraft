@@ -1,7 +1,7 @@
 local mainFolder, programFolder, apiFolder, configFile = "zerzera/", "programs/", "api/", "config"
 local programs = {
-  nuke = "Nuclear Reactor program",
-  nukeReceiver = "Nuclear remote monitoring program"
+  nuke         = "Nuclear Reactor program",
+  nukeReceiver = "Nuclear remote monitoring"
 }
 local apis = {
   h = "Help API"
@@ -88,3 +88,5 @@ if(fs.exists(mainFolder .. configFile) == false) then
   print("Installing a fresh config file!")  
   getFromRepo(mainFolder .. configFile)
 end
+sleep(1)
+term.clear()
