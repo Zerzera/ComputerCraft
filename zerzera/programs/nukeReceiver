@@ -86,7 +86,7 @@ updateScreen = function(tParams)
 
     -- Write percentage centred on background
     local sPercentage = tParams["perc"].."%"
-    local margin = math.ceil((innerWidth - #sPercentage)/2)+1
+    local margin = math.ceil((innerWidth - #sPercentage)/2)
     pMonitor.setBackgroundColor(iBackground)
     pMonitor.setCursorPos(left+1+margin, yStart+(math.ceil(innerHeight*0.05)))
     pMonitor.write(sPercentage)
@@ -101,14 +101,14 @@ updateScreen = function(tParams)
 
     -- Write reactor status centred side, 10% from top
     local sStatus = tParams["status"]
-    local margin = math.ceil((innerWidth - (#sStatus + 2))/2)+1
+    local margin = math.ceil((innerWidth - (#sStatus + 2))/2)
     if(sStatus == "on") then
         pMonitor.setBackgroundColor(colors.green)
     else
         pMonitor.setBackgroundColor(colors.red)
     end
     
-    pMonitor.setCursorPos(left+1+margin, math.floor(ySize*0.10))
+    pMonitor.setCursorPos(left+1+margin, math.floor(ySize*0.1))
     pMonitor.write(" ")
     pMonitor.setBackgroundColor(colors.black)
 
@@ -116,12 +116,12 @@ updateScreen = function(tParams)
     pMonitor.write( (sStatus:gsub("^%l", string.upper)))
     pMonitor.setBackgroundColor(colors.black)
 
-    -- Write reactor EU amount stored,centred and 15% from top
-    local sStored = tParams["EUStored"]
-    local margin = math.ceil((innerWidth - #sStored)/2)+1
+    -- Write reactor EU amount stored,centred and 17% from top
+    local sStored = ""..tParams["EUStored"].. " EU"
+    local margin = math.ceil((innerWidth - #sStored)/2)
 
-    pMonitor.setCursorPos(left+1+margin, math.floor(ySize*0.15))
-    pMonitor.write( sStored .. "EU")
+    pMonitor.setCursorPos(left+1+margin, math.floor(ySize*0.17))
+    pMonitor.write( sStored )
     pMonitor.setBackgroundColor(colors.black)
 end
 
