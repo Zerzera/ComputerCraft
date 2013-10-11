@@ -1,4 +1,4 @@
-local mainFolder, programFolder , apiFolder = "zerzera/", "programs/", "api/"
+local mainFolder, programFolder, apiFolder, configFile = "zerzera/", "programs/", "api/", "config"
 local programs = {
   nuke = "Nuclear Reactor program"
 }
@@ -71,10 +71,15 @@ for k,v in pairs(apis) do
 end
 
 -- Add necessary Programs
-for k,v in pairs(apis) do 
-  local rFile = mainFolder .. apiFolder .. k
+for k,v in pairs(programs) do 
+  local rFile = mainFolder .. programFolder .. k
   
   print("Installing "..v)  
   rm(rFile)             -- First delete existing file
   getFromRepo(rFile)    -- Get the file from GitHub
+end
+
+-- Install config placeholder, if it doesn't already exists.
+if(fs.exists(mainFolder .. configFile) == false) then
+  getFromRepo(mainFolder .. configFile)
 end
