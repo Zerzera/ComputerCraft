@@ -99,14 +99,16 @@ updateScreen = function(tParams)
     pMonitor.write( (sLabel:gsub("^%l", string.upper)))
     pMonitor.setBackgroundColor(colors.black)
 
-    -- Write reactor status on the right side, 15% from top
+    -- Write reactor status centred side, 10% from top
     local sStatus = tParams["status"]
+    local margin = math.ceil((innerWidth - (#sStatus + 2))/2)+1
     if(sStatus == "on") then
         pMonitor.setBackgroundColor(colors.green)
     else
         pMonitor.setBackgroundColor(colors.red)
     end
-    pMonitor.setCursorPos((right-#sStatus), math.floor(ySize*0.15))
+    
+    pMonitor.setCursorPos(left+1+margin, math.floor(ySize*0.10))
     pMonitor.write(" ")
     pMonitor.setBackgroundColor(colors.black)
 
@@ -114,9 +116,11 @@ updateScreen = function(tParams)
     pMonitor.write( (sStatus:gsub("^%l", string.upper)))
     pMonitor.setBackgroundColor(colors.black)
 
-    -- Write reactor EU amount stored, 15% from top
+    -- Write reactor EU amount stored,centred and 15% from top
     local sStored = tParams["EUStored"]
-    pMonitor.setCursorPos(left, math.floor(ySize*0.15))
+    local margin = math.ceil((innerWidth - #sStored)/2)+1
+
+    pMonitor.setCursorPos(left+1+margin, math.floor(ySize*0.15))
     pMonitor.write( sStored .. "EU")
     pMonitor.setBackgroundColor(colors.black)
 end
