@@ -1,4 +1,4 @@
-tArgs = {}
+tArgs = {...}
 
 if  #tArgs == 0 then
    print('Usage: nukeReceiver [modem side] [monitor side]')
@@ -7,6 +7,48 @@ end
 
 sModem   = tArgs[1]
 sMonitor = tArgs[2]
+sPort    = tonumber(tArgs[3])
 
+if( sPort == nil) then sPort = 123 end
 
-if not sModem or not sMonitor then print('Usage: nukeReceiver [modem side] [monitor side]') return false end
+if not sModem or not sMonitor then print('Usage: nukeReceiver [modem side] [monitor side] {Listen port}') error() end
+
+local p         = peripheral
+local pModem    = p.wrap(sModem)
+local pMonitor  = p.wrap(sMonitor)
+local paint     = paintutils
+
+-- Initialize monitor
+local xSize,ySize = pMonitor.getSize()
+local top, right, bottom, left = 2, xSize-1, ySize-1, 2
+--out.redirect(pMonitor)
+pMonitor.clear()
+pMonitor.setCursorPos(1,1)
+pMonitor.setTextScale(0.5)
+pMonitor.setTextColor(colors.white)
+pMonitor.setBackgroundColor(colors.black)
+
+-- Draw the box
+for y=2, ySize-1 do
+    pMonitor.setBackgroundColor(colors.white)
+
+    if y == top or y == bottom then
+        for x=left, right do
+            pMonitor.setCursorPos(x,y)
+            pMonitor.write(" ")
+        end
+    end
+    
+    pMonitor.setCursorPos(left,y)
+    pMonitor.write(" ")
+    
+    pMonitor.setCursorPos(right, y )
+    pMonitor.write(" ")
+    
+    pMonitor.setBackgroundColor(colors.black)
+end
+
+--paint.drawLine(2, 2, 2, ySize -1, colors.white)
+
+-- Intialize modem
+pModem.open(sPort)
