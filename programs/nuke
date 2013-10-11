@@ -1,0 +1,230 @@
+local t         = turtle
+local p         = peripheral
+local nuke      = p.wrap(config.locations.nuke)
+local interface = p.wrap(config.locations.interface)
+local mfsu      = p.wrap(config.locations.mfsu)
+local ifSlots   = {}
+local rods      = {}
+local slots     = {}
+local replacing = {}
+local ccSlots   = {}
+local emptySlots= 0
+local pattern = ""
+local maxEU = mfsu.getEUCapacity()
+
+for k,v in pairs(config.pattern) do pattern = pattern .. v end
+if( string.len(pattern) ~= nuke.getInventorySize() ) then
+    error("Pattern not matching Reactor inventory")
+end
+
+local reverseSymbol = {}
+for k,v in pairs(config.symbols) do reverseSymbol[v] = k end
+
+local reverseIds = {}
+for k,v in pairs(config.ids) do reverseIds[v] = k end
+
+getNextFreeSlot = function()
+    for i=1,16 do
+        if(ccSlots[i] == false and t.getItemCount(i) == 0) then
+            ccSlots[i] = (t.getItemCount(i) ~= 0)
+            return i
+        end
+    end
+    return 0
+end
+
+getSlots = function(pattern)
+    for i=1, pattern:len() do
+        local char = pattern:sub(i,i)
+        local item = reverseSymbol[char]
+        slots[i] = config.ids[item]
+        if(item == "fuelRod") then
+            rods[i] = true
+            replacing[i] = false
+            if(nuke.getStackInSlot(i) == nil) then
+                rods[i] = "Replacing"
+                replacing[i] = true
+            end
+        elseif(nuke.getStackInSlot(i) == nil) then
+                emptySlots = emptySlots+1
+        end
+    end
+    
+    for i=1, interface.getInventorySize() do
+        local slot = interface.getStackInSlot(i)
+        if (slot ~= nil) then
+            local itemId = slot['id']
+            if(reverseIds[itemId] ~= nil) then
+                ifSlots[itemId] = i
+            end
+        end
+    end
+end
+
+emptyReactorChamber = function()
+    local slot,id
+    for slot,id in pairs(slots) do
+        local turtleSlot = getNextFreeSlot()
+        if(pullFromReactor(slot, turtleSlot) ~= 0) then
+            pushToInterface(turtleSlot)
+        end
+    end
+end
+
+fillReactorChamber = function()
+    local slot,id
+    for slot,id in pairs(slots) do
+        local sType = reverseIds[id]
+        if(sType ~= "fuelRod" and nuke.getStackInSlot(slot) == nil) then
+            local turtleSlot = 0
+            while(turtleSlot == 0) do
+                turtleSlot = pullFromInterface(id)
+                if( turtleSlot == 0 ) then os.sleep(1) end
+            end
+            local itemsPushed = pushToReactor(slot, turtleSlot)
+        elseif(sType == "fuelRod" and nuke.getStackInSlot(slot) == nil) then
+            local targetSlot = getNextFreeSlot()
+                  replacing[slot] = targetSlot
+        end
+    end
+end
+
+pullFromInterface = function(itemId)
+    local turtleSlot = 0
+    local slot = ifSlots[tonumber(itemId)]
+    if(itemId == nil or slot == nil) then return turtleSlot end
+    if(interface.getStackInSlot(slot) ~= nil) then 
+        turtleSlot = getNextFreeSlot()
+        interface.pushItemIntoSlot( config.locations.interfacePush, slot, 1, turtleSlot)
+        return turtleSlot
+    end
+    return turtleSlot
+end
+
+pushToInterface = function(turtleSlot)
+    if(turtleSlot ~= nil  and t.getItemCount(turtleSlot) > 0) then
+        interface.pullItem( config.locations.interfacePush, turtleSlot, 1 )
+        ccSlots[turtleSlot] = (t.getItemCount(turtleSlot) ~= 0)
+    end
+end
+
+pullFromReactor = function (nukeSlot, turtleSlot)
+    local nSlot = nuke.getStackInSlot(nukeSlot)
+    local iPulled = 0
+    if(turtleSlot~=nil and t.getItemCount(turtleSlot) == 0 and nSlot ~= nil) then
+        iPulled = nuke.pushItemIntoSlot( config.locations.nukePush, nukeSlot, 1, turtleSlot )
+    end
+    return iPulled
+
+end
+
+pushToReactor = function (nukeSlot, turtleSlot)
+    local iPushed = 0
+    local nSlot = nuke.getStackInSlot(nukeSlot)
+    if(t.getItemCount(turtleSlot) == 1 and nSlot == nil) then
+        
+        iPushed = nuke.pullItemIntoSlot( config.locations.nukePush, turtleSlot, 1, nukeSlot)
+        ccSlots[turtleSlot] = (t.getItemCount(turtleSlot) ~= 0)
+    end
+    return iPushed
+end
+
+clearTurtle = function()
+    for i=1,16 do 
+        pushToInterface(i)
+        ccSlots[i] = false 
+    end
+end
+
+checkFuelRods = function()
+    for k,v in pairs(rods) do
+        local slot = nuke.getStackInSlot(k)
+        if not(slot == nil) then
+            local itemId = slot['id']
+            if(itemId == config.ids.fuelRod) then
+                rods[k] = slot['dmg']
+                replacing[k] = false
+            end
+            if(itemId == config.depletedItemId) then
+                if(replacing[k] == false) then
+                    local targetSlot = getNextFreeSlot()
+                    pullFromReactor(k,targetSlot)
+                    pushToInterface(targetSlot)
+                end
+                rods[k] = "Replacing"
+                replacing[k] = true
+            end
+        end
+    end
+    for k,v in pairs(replacing) do
+        if (v == true) then
+            local turtleSlot = pullFromInterface(config.ids.fuelRod)
+            if ( turtleSlot > 0) then
+                pushToReactor(k, turtleSlot)
+                rods[k] = nuke.getStackInSlot(k)['dmg']
+                replacing[k] = false
+                ccSlots[turtleSlot] = (t.getItemCount(turtleSlot) ~= 0)
+            end
+        end
+    end
+end
+
+getReactorStatus = function()
+    return nuke.isActive()
+end
+
+toggleReactorOnPercentage = function(perc)
+    if(perc < config.bounds.high and perc < config.bounds.low and redstone.getOutput(config.locations.nuke) == false) then
+        redstone.setOutput(config.locations.nuke, true)
+    elseif(perc > config.bounds.high and redstone.getOutput(config.locations.nuke) == true) then
+        redstone.setOutput(config.locations.nuke, false)
+    end
+end
+
+refresh = function()
+    local perc
+    checkFuelRods()
+    for k,v in pairs(rods) do
+        if(k<10)then
+            k = "0"..k
+        end
+    
+        --[[if not(v == "Replacing") then
+            writeLine("Slot "..k..": " .. (10000-v))
+        else 
+            writeLine("Slot "..k..": " .. v)
+        end
+        --]]
+    end
+    getReactorStatus()
+    eu = mfsu.getEUStored()
+    if(eu > 0) then
+        perc = math.floor(eu / maxEU * 10000) / 100
+    else 
+        perc = 0
+    end
+    print(perc)
+    toggleReactorOnPercentage(perc)
+end
+
+getSlots(pattern, config.symbols, config.ids)
+clearTurtle()
+if(emptySlots >= h.length(rods) ) then
+    print("Reactor is empty, needs refilling")
+    emptyReactorChamber()
+    getSlots(pattern, config.symbols, config.ids)
+    clearTurtle()
+    fillReactorChamber()
+end
+
+while true do
+    os.startTimer(0.2)
+    local event, key = os.pullEvent()
+    if(event == "key") then
+        if(key == 16) then break end
+    end
+    if(event == "timer")then
+        refresh()
+        sleep (0.5)
+    end
+end

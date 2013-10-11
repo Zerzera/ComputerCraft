@@ -1,0 +1,6 @@
+local programPath = "programs"
+
+if fs.exists(programPath) == false then 
+  fs.delete(programPath)
+  fs.makeDir(programPath) 
+end

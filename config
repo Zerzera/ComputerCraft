@@ -1,0 +1,48 @@
+id              = 				-- Computer ID
+label           = ""			-- Computer Label
+
+depletedItemId  = 30055 	-- ID of a depleted fuel rod
+ 
+bounds = {
+    low  = 85,            -- Lower bound percentage for turning ON the Reactor
+    high = 99             -- High bound percentage for turning OFF the Reactor
+}
+
+locations = {
+    interfacePush = "down",     -- Direction interface needs to push its items
+    nukePush      = "west",     -- Direction reactor needs to push its items
+    modem         = "right",    -- Wireless modem side 
+    nuke          = "front",    -- Reactor side
+    interface     = "top",      -- Interface side
+    mfsu          = "bottom",   -- MFSU side
+    receiver      =             -- ID of the wireless receiving computer
+}
+
+ids = {
+    overclockedHeatVent  = 30091,
+    componentHeatVent    = 30090,
+    heatExchanger        = 30204,
+    advancedHeatVent     = 30089,
+    advancedHeatExchanger= 30094,
+    reactorPlating       = 30205,
+    fuelRod              = 30102
+}
+
+symbols = {
+    overclockedHeatVent  = "H", -- 19 x
+    componentHeatVent    = "O", -- 18 x
+    heatExchanger        = "E", --  4 x
+    advancedHeatVent     = "K", --  3 x
+    advancedHeatExchanger= "X", --  2 x
+    reactorPlating       = "R", --  1 x
+    fuelRod              = "N"  --  7 x
+}
+
+pattern = {
+    "NNOHEKEHO",
+    "NNROHOHOH",
+    "NNOHOHOHX",
+    "NOHOHOHOK",
+    "OHOHOHOHO",
+    "HXKEHOHEH"
+}

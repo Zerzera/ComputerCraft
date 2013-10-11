@@ -1,0 +1,47 @@
+pr = function( name, T )
+    if(m~=nil) then
+        if( type(T) == "table" ) then
+            m.setCursorPos(cX,cY)
+            m.write( tostring(name) .. "{" )
+            cX = cX+2
+            for k,v in pairs( T ) do
+                cY = cY+1
+                m.setCursorPos(cX,cY)
+                if( type( v ) == "table" ) then
+                   pr( k, v )
+                else
+                    m.write( tostring(k) .. ": " .. tostring(v) .. "")
+                end
+            end
+            cY = cY+1
+            cX = cX-2
+            m.setCursorPos(cX,cY)
+            m.write( "},")
+        else
+            m.write( tostring(name) .. ": " .. tostring(T) .. "")
+            cY = cY+1
+            m.setCursorPos(cX,cY)
+        end
+    else
+       if( type(T) == "table" ) then
+            print( tostring(name) .. "{" )
+            for k,v in pairs( T ) do
+                if( type( v ) == "table" ) then
+                   pr( k, v )
+                else
+                    print( tostring(k) .. ": " .. tostring(v) .. "")
+                end
+            end
+            print( "},")
+        else
+            print( tostring(name) .. ": " .. tostring(T) .. "")
+        end
+     end
+end
+
+function length(T)
+  local count = 0
+  for _ in pairs(T) do count = count + 1 end
+  return count
+end
+
