@@ -1,19 +1,24 @@
 local programPath = "programs"
-local apiPath     = "rom/apis/"
+local apiPath     = "/rom/apis/"
+local tmpPath     = "/tmp/"
 local apis = {
   h = "Help API"
 }
-
 -- Get the files from the master branch
 local getFromRepo = function(file)
-  git.get("Zerzera", "ComputerCraft", "master", "/"..file, file)
+  git.get("Zerzera", "ComputerCraft", "master", "/"..file, tmpPath..file)
+  
 end
 
--- Add programs
-if fs.exists(programPath) == false then 
-  fs.delete(programPath)
-  fs.makeDir(programPath) 
+-- Remove directory if exists, then recreate it
+local rmDir = function(dir)
+  if fs.exists(dir) == true then fs.delete(dir) end
+  return fs.makeDir(dir) 
 end
+
+rmDir(tmpPath) -- Creating temporary directory to store files
+rmDir(programPath) -- Add programs
+
 
 -- Add necessary APIs
 for k,v in pairs(apis) do 
