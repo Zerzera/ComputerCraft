@@ -1,3 +1,8 @@
+os.unloadAPI("/zerzera/config")
+os.loadAPI("/zerzera/config")
+os.unloadAPI("/zerzera/api/h")
+os.loadAPI("/zerzera/api/h")
+
 local t         = turtle
 local p         = peripheral
 local nuke      = p.wrap(config.locations.nuke)
@@ -188,13 +193,6 @@ refresh = function()
         if(k<10)then
             k = "0"..k
         end
-    
-        --[[if not(v == "Replacing") then
-            writeLine("Slot "..k..": " .. (10000-v))
-        else 
-            writeLine("Slot "..k..": " .. v)
-        end
-        --]]
     end
     getReactorStatus()
     eu = mfsu.getEUStored()
@@ -203,7 +201,6 @@ refresh = function()
     else 
         perc = 0
     end
-    print(perc)
     toggleReactorOnPercentage(perc)
 end
 
