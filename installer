@@ -88,5 +88,7 @@ if(fs.exists(mainFolder .. configFile) == false) then
   print("Installing a fresh config file!")  
   getFromRepo(mainFolder .. configFile)
 end
+
 sleep(1)
 term.clear()
+term.setCursorsPos(1,1)
