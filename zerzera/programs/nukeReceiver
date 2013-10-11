@@ -7,14 +7,10 @@ end
 
 sModem   = tArgs[1]
 sMonitor = tArgs[2]
-sPort    = tonumber(tArgs[3])
 
-if( sPort == nil) then sPort = 123 end
-
-if not sModem or not sMonitor then print('Usage: nukeReceiver [modem side] [monitor side] {Listen port}') error() end
+if not sModem or not sMonitor then print('Usage: nukeReceiver [modem side] [monitor side]') error() end
 
 local p           = peripheral
-local pModem      = p.wrap(sModem)
 local pMonitor    = p.wrap(sMonitor)
 local iBorder     = colors.white
 local iBackground = colors.red
@@ -31,97 +27,103 @@ local tParams     = {
 -- Initialize monitor
 local xSize,ySize = pMonitor.getSize()
 local top, right, bottom, left = math.ceil(ySize*0.20), xSize-1, ySize-1, 2
-
-pMonitor.clear()
-pMonitor.setCursorPos(1,1)
-pMonitor.setTextScale(0.5)
-pMonitor.setTextColor(iTextColor)
-pMonitor.setBackgroundColor(colors.black)
-
-for y=1, bottom do
+updateScreen = function(tParams)
+    pMonitor.clear()
+    pMonitor.setCursorPos(1,1)
+    pMonitor.setTextScale(0.5)
+    pMonitor.setTextColor(iTextColor)
     pMonitor.setBackgroundColor(colors.black)
-    for x=left, right do
-      pMonitor.setCursorPos(x,y)
-      pMonitor.write(" ")
-    end
-end
 
--- Draw the border
-for y=top, bottom do
-    pMonitor.setBackgroundColor(iBorder)
-
-    if y == top or y == bottom then
+    for y=1, bottom do
+        pMonitor.setBackgroundColor(colors.black)
         for x=left, right do
-            pMonitor.setCursorPos(x,y)
-            pMonitor.write(" ")
+          pMonitor.setCursorPos(x,y)
+          pMonitor.write(" ")
         end
     end
-    
-    pMonitor.setCursorPos(left,y)
-    pMonitor.write(" ")
-    
-    pMonitor.setCursorPos(right, y )
-    pMonitor.write(" ")
-    
-    pMonitor.setBackgroundColor(colors.black)
-end
 
--- Calculate center text
-local innerWidth  = (right - 1) - (left + 1);
-local innerHeight = (bottom - 1) - (top + 1);
+    -- Draw the border
+    for y=top, bottom do
+        pMonitor.setBackgroundColor(iBorder)
 
--- Calculate starting point from the top
-local yStart = top + innerHeight - math.floor( innerHeight / 100 * tParams["perc"])
-
--- Draw the background
-for y=top+1, bottom-1 do
-    pMonitor.setBackgroundColor(colors.black)
-    if(y >= yStart) then
-        pMonitor.setBackgroundColor(iBackground)
+        if y == top or y == bottom then
+            for x=left, right do
+                pMonitor.setCursorPos(x,y)
+                pMonitor.write(" ")
+            end
+        end
+        
+        pMonitor.setCursorPos(left,y)
+        pMonitor.write(" ")
+        
+        pMonitor.setCursorPos(right, y )
+        pMonitor.write(" ")
+        
+        pMonitor.setBackgroundColor(colors.black)
     end
-    for x=left+1, right-1 do
-      pMonitor.setCursorPos(x,y)
-      pMonitor.write(" ")
+
+    -- Calculate center text
+    local innerWidth  = (right - 1) - (left + 1);
+    local innerHeight = (bottom - 1) - (top + 1);
+
+    -- Calculate starting point from the top
+    local yStart = top + innerHeight - math.floor( innerHeight / 100 * tParams["perc"])
+
+    -- Draw the background
+    for y=top+1, bottom-1 do
+        pMonitor.setBackgroundColor(colors.black)
+        if(y >= yStart) then
+            pMonitor.setBackgroundColor(iBackground)
+        end
+        for x=left+1, right-1 do
+          pMonitor.setCursorPos(x,y)
+          pMonitor.write(" ")
+        end
+        pMonitor.setBackgroundColor(colors.black)
     end
+
+    -- Write percentage centred on background
+    local sPercentage = tParams["perc"].."%"
+    local margin = math.ceil((innerWidth - #sPercentage)/2)+1
+    pMonitor.setBackgroundColor(iBackground)
+    pMonitor.setCursorPos(left+1+margin, yStart+(math.ceil(innerHeight*0.05)))
+    pMonitor.write(sPercentage)
+    pMonitor.setBackgroundColor(colors.black)
+
+    -- Write label centred on background, 5% from top
+    local sLabel = tParams["label"]
+    local margin = math.ceil((right - #sLabel)/2)
+    pMonitor.setCursorPos(left+margin, math.floor(ySize*0.05))
+    pMonitor.write( (sLabel:gsub("^%l", string.upper)))
+    pMonitor.setBackgroundColor(colors.black)
+
+    -- Write reactor status on the right side, 15% from top
+    local sStatus = tParams["status"]
+    if(sStatus == "on") then
+        pMonitor.setBackgroundColor(colors.green)
+    else
+        pMonitor.setBackgroundColor(colors.red)
+    end
+    pMonitor.setCursorPos((right-#sStatus), math.floor(ySize*0.15))
+    pMonitor.write(" ")
+    pMonitor.setBackgroundColor(colors.black)
+
+    pMonitor.write(" ")
+    pMonitor.write( (sStatus:gsub("^%l", string.upper)))
+    pMonitor.setBackgroundColor(colors.black)
+
+    -- Write reactor EU amount stored, 15% from top
+    local sStored = tParams["EUStored"]
+    pMonitor.setCursorPos(left, math.floor(ySize*0.15))
+    pMonitor.write( sStored .. "EU")
     pMonitor.setBackgroundColor(colors.black)
 end
-
--- Write percentage centred on background
-local sPercentage = tParams["perc"].."%"
-local margin = math.ceil((innerWidth - #sPercentage)/2)
-
-pMonitor.setBackgroundColor(iBackground)
-pMonitor.setCursorPos(left+1+margin, yStart+(math.ceil(innerHeight*0.05)))
-pMonitor.write(sPercentage)
-pMonitor.setBackgroundColor(colors.black)
-
--- Write label centred on background, 5% from top
-local sLabel = tParams["label"]
-local margin = math.ceil((right - #sLabel)/2)
-pMonitor.setCursorPos(left+margin, math.floor(ySize*0.05))
-pMonitor.write( (sLabel:gsub("^%l", string.upper)))
-pMonitor.setBackgroundColor(colors.black)
-
--- Write reactor status on the right side, 15% from top
-local sStatus = tParams["status"]
-if(sStatus == "on") then
-    pMonitor.setBackgroundColor(colors.green)
-else
-    pMonitor.setBackgroundColor(colors.red)
-end
-pMonitor.setCursorPos((right-#sStatus), math.floor(ySize*0.15))
-pMonitor.write(" ")
-pMonitor.setBackgroundColor(colors.black)
-
-pMonitor.write(" ")
-pMonitor.write( (sStatus:gsub("^%l", string.upper)))
-pMonitor.setBackgroundColor(colors.black)
-
--- Write reactor EU amount stored, 15% from top
-local sStored = tParams["EUStored"]
-pMonitor.setCursorPos(left, math.floor(ySize*0.15))
-pMonitor.write( sStored .. "EU")
-pMonitor.setBackgroundColor(colors.black)
 
 -- Initialize modem
-pModem.open(sPort)
+rednet.open(sModem)
+
+while true do
+   local id,msg,dist = rednet.receive()
+   tParams = textutils.unserialize(msg)
+   updateScreen(tParams)
+end

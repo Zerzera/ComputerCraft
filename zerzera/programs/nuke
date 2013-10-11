@@ -16,8 +16,7 @@ local ccSlots   = {}
 local emptySlots= 0
 local pattern      = ""
 local maxEU        = mfsu.getEUCapacity()
-local pModem       = p.wrap(config.locations.modem)
-local modemPresent = pModem.open(123)
+local modemPresent = rednet.open(config.locations.modem)
 
 term.clear()
 term.setCursorPos(1,1)
@@ -194,7 +193,11 @@ end
 refresh = function()
     local perc
     checkFuelRods()
-    getReactorStatus()
+    if(getReactorStatus()) then
+        sStatus = "on"
+    else 
+        sStatus = "off"
+    end
     
     eu = mfsu.getEUStored()
     if(eu > 0) then
@@ -204,6 +207,17 @@ refresh = function()
     end
     toggleReactorOnPercentage(perc)
     
+    if(rednet.isOpen(config.locations.modem))then
+        local tParams     = {
+          perc        = perc,
+          EUStored    = eu,
+          EUCapacity  = maxEU,
+          status      = sStatus,
+          label       = config.label
+        }
+
+        rednet.send(config.locations.receiver, textutils.serialize(tParams))
+    end
 end
 
 getSlots(pattern, config.symbols, config.ids)
