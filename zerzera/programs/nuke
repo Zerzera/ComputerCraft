@@ -16,6 +16,11 @@ local ccSlots   = {}
 local emptySlots= 0
 local pattern = ""
 local maxEU = mfsu.getEUCapacity()
+local pModem       = p.wrap(config.locations.modem)
+local modemPresent = p.open(123)
+
+term.clear()
+term.setCursorPos(1,)
 
 for k,v in pairs(config.pattern) do pattern = pattern .. v end
 if( string.len(pattern) ~= nuke.getInventorySize() ) then
@@ -189,12 +194,8 @@ end
 refresh = function()
     local perc
     checkFuelRods()
-    for k,v in pairs(rods) do
-        if(k<10)then
-            k = "0"..k
-        end
-    end
     getReactorStatus()
+    
     eu = mfsu.getEUStored()
     if(eu > 0) then
         perc = math.floor(eu / maxEU * 10000) / 100
@@ -202,6 +203,7 @@ refresh = function()
         perc = 0
     end
     toggleReactorOnPercentage(perc)
+    
 end
 
 getSlots(pattern, config.symbols, config.ids)

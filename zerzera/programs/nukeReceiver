@@ -123,6 +123,5 @@ pMonitor.setCursorPos(left, math.floor(ySize*0.15))
 pMonitor.write( sStored .. "EU")
 pMonitor.setBackgroundColor(colors.black)
 
-
 -- Initialize modem
 pModem.open(sPort)
