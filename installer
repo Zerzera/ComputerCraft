@@ -1,6 +1,25 @@
 local programPath = "programs"
+local apiPath     = "rom/apis/"
+local apis = {
+  "h" = "Help API"
+}
 
+local getFromRepo = function(file)
+  git.get("Zerzera", "ComputerCraft", "master", "/"..file, .. file)
+end
+
+-- Add programs
 if fs.exists(programPath) == false then 
   fs.delete(programPath)
   fs.makeDir(programPath) 
+end
+
+-- Add necessary APIs
+for k,v in pairs(apis) do 
+  local file = apiPath .. k
+  print("Installing "..v)
+  if fs.exists(file) == true then 
+    fs.delete(file)
+  end
+  getFromRepo(k)
 end
