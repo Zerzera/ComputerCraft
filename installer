@@ -1,31 +1,80 @@
-local programPath = "programs"
-local apiPath     = "/rom/apis/"
-local tmpPath     = "/tmp/"
+local mainFolder, programFolder , apiFolder = "zerzera/", "programs/", "api/"
+local programs = {
+  nuke = "Nuclear Reactor program"
+}
 local apis = {
   h = "Help API"
 }
+
+-- Explode a string to table
+split = function (str, pat)
+   local t = {}
+   local fpat = "(.-)" .. pat
+   local last_end = 1
+   local s, e, cap = str:find(fpat, 1)
+   while s do
+      if s ~= 1 or cap ~= "" then table.insert(t,cap) end
+      last_end = e+1
+      s, e, cap = str:find(fpat, last_end)
+   end
+   if last_end <= #str then
+      cap = str:sub(last_end)
+      table.insert(t, cap)
+   end
+   return t
+end
+
 -- Get the files from the master branch
-local getFromRepo = function(file)
-  git.get("Zerzera", "ComputerCraft", "master", "/"..file, tmpPath..file)
-  
+getFromRepo = function(rFile)
+  git.get("Zerzera", "ComputerCraft", "master", rFile, rFile)
 end
 
--- Remove directory if exists, then recreate it
-local rmDir = function(dir)
-  if fs.exists(dir) == true then fs.delete(dir) end
-  return fs.makeDir(dir) 
+-- Create directory if it doesn't exists
+mkDir = function(dir)
+  if fs.exists(dir) == false then 
+    fs.makeDir(dir) 
+    return true
+  end
+  return false
 end
 
-rmDir(tmpPath) -- Creating temporary directory to store files
-rmDir(programPath) -- Add programs
+-- Remove directory if exists
+rm = function(dir)
+  if fs.exists(dir) == true then return fs.delete(dir) end
+  return false
+end
 
+-- Remove and create a directory path
+newFolder = function(dir)
+  local tStruc = split(dir, '[\\/]+')
+  local sCurrentDir = ""
+  for k,v in pairs(tStruc) do 
+    sCurrentDir = sCurrentDir.."/" .. v
+    if(k == 2) then 
+        rm(sCurrentDir)
+    end
+    mkDir(sCurrentDir)
+  end
+end
+
+-- Create folder structure
+newFolder(mainFolder..programFolder)  -- Add programs
+newFolder(mainFolder..apiFolder)  -- Add programs
 
 -- Add necessary APIs
 for k,v in pairs(apis) do 
-  local file = apiPath .. k
-  print("Installing "..v)
-  if fs.exists(file) == true then 
-    fs.delete(file)
-  end
-  getFromRepo(k)
+  local rFile = mainFolder .. apiFolder .. k
+  
+  print("Installing "..v)  
+  rm(rFile)             -- First delete existing file
+  getFromRepo(rFile)    -- Get the file from GitHub
+end
+
+-- Add necessary Programs
+for k,v in pairs(apis) do 
+  local rFile = mainFolder .. apiFolder .. k
+  
+  print("Installing "..v)  
+  rm(rFile)             -- First delete existing file
+  getFromRepo(rFile)    -- Get the file from GitHub
 end
