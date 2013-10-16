@@ -123,7 +123,11 @@ local t = turtle
         end
         
         for i=1,number do -- For as many times as there are tunnels
-            mainWork(wall+1) -- Dig to the next side tunnel
+            if(i>1) then
+                mainWork(wall+3) -- Dig to the next side tunnel
+            else 
+                mainWork(2)
+            end
             placeTorch() -- Place a torch right before tunnel
             t.turnRight() -- Turn to dig the right side
             t.forward()
