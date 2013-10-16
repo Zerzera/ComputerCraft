@@ -1,0 +1,139 @@
+print("Number of branches?")
+local tunnelNumber = read() -- Here we set up the variables that the whole program works on
+print("Length of branches? Longer than 10 inadvisable.")
+local tunnelLength = read()
+print("Distance between? 3 is ideal.")
+local tunnelWall = read()
+print("Place torches in slot 2. Press enter when ready.")
+read()
+local mainDistance = 0
+local sideDistance = 0
+local mainLength = tunnelNumber*(tunnelWall+1)
+local totalTravel = (4*tunnelLength)*(tunnelNumber+2)+(mainLength*2)
+print("The total fuel requirement will be: "..totalTravel)
+sleep(2)
+
+	function sideWork(dist) -- For making the side tunnels, argument is tunnel length. Increments sideDistance
+		for i=1,dist do
+			while turtle.detect() do
+				turtle.dig()
+			end
+			turtle.forward()
+			sideDistance = sideDistance +1
+			turtle.digDown()
+			turtle.digUp()
+		end
+	end
+	
+	function mainWork(dist) -- For making the main tunnel, argument is tunnel length. Increments mainDistance
+		for i=1,dist do
+			while turtle.detect() do
+				turtle.dig()
+			end
+			turtle.forward()
+			mainDistance = mainDistance + 1
+			turtle.digDown()
+			turtle.digUp()
+		end
+	end	
+
+	function travel(dist) -- Truncating the turtle.forward command, being stopped by a player or mob will not harm.
+		for i=1, dist do
+			repeat 
+			until turtle.forward() == true
+		end
+	end
+	
+	function spin() -- because he will do it a lot
+		turtle.turnRight()
+		turtle.turnRight()
+	end
+	
+	function noFuel() -- Calculates total fuel cost for the job, returns true if there is not enough fuel
+		if turtle.getFuelLevel() < totalTravel then
+			return true
+		end
+	end
+	
+	function placeTorch() -- Places a torch from slot 2
+		turtle.select(2)
+		turtle.placeUp()
+		turtle.select(1)
+	end
+	
+	function checkInventory() -- Returns true if there is an item in the next to last inventory slot
+		if turtle.getItemCount(15) > 0 then
+			return true
+		end
+	end
+	
+	function goHome() -- To return home from the main tunnel
+		spin()
+		travel(mainDistance)
+	end
+	
+	function goToMain() -- To return to the main tunnel from the side tunnel
+		spin()
+		travel(sideDistance)
+	end
+	
+	function main(number,length,wall) -- Lets dig this damn tunnel now
+		
+		if noFuel() == true then
+		print("Please place at least "..totalTravel - turtle.getFuelLevel().." fuel in slot 1.")
+		end
+		
+		while noFuel() do -- If there is no fuel, the turtle will keep checking and trying to refuel until it has enough for the job
+			turtle.select(1)
+			turtle.refuel()
+			sleep(0.5)
+		end
+		
+		
+		for i=1,number do -- For as many times as there are tunnels
+				
+			mainWork(wall+1) -- Dig to the next side tunnel
+			turtle.back()
+			placeTorch() -- Place a torch right before tunnel
+			turtle.forward() -- Get to the tunnel proper
+			turtle.turnRight() -- Turn to dig the right side
+			sideWork(length) -- Dig for the length defined for the branches
+			placeTorch() -- place a torch at the end of each branch
+			spin() -- Turn around at the end of the tunnel
+			travel(length) -- Back to the main tunnel
+			sideDistance = 0 -- Reset side distance for next tunnel
+			sideWork(length) -- Dig the tunnel on the left now
+			placeTorch() 
+			spin()
+			travel(length)
+			turtle.turnLeft()
+				
+			if checkInventory() then -- If the next to last slot has an item in it, go home, drop everything, and come back
+				goHome()
+				turtle.select(1)
+				turtle.drop()
+				for slot=3,16 do
+					turtle.select(slot)
+					turtle.drop()
+				end
+				turtle.select(1)
+				spin()
+				travel(mainDistance)
+				
+			end
+			
+		end
+		
+		goHome()
+			
+			for slot=1,16 do
+				turtle.select(slot)
+				turtle.drop()
+			end
+		
+		print("Job complete! What's next?")
+		
+	end
+
+	
+main(tunnelNumber,tunnelLength,tunnelWall)
