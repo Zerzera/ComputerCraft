@@ -1,0 +1,3 @@
+git.get("Zerzera", "ComputerCraft", "master", "/installer", "installer")
+shell.run("installer")
+shell.run("zerzera/programs/nuke")

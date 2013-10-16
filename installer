@@ -2,6 +2,8 @@ local mainFolder, programFolder, apiFolder, configFile = "zerzera/", "programs/"
 local programs = {
   nuke         = "Nuclear Reactor program",
   nukeReceiver = "Nuclear remote monitoring"
+  branchMine   = "Branch mining"
+  
 }
 local apis = {
   h = "Help API"
