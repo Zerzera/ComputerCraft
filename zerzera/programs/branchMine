@@ -169,12 +169,6 @@ local t = turtle
                 travel(mainDistance)
             end
 		end
-		
-        for slot=1,16 do
-            t.select(slot)
-            t.drop()
-        end
-		
 		print("Job complete! What's next?")
 	end
 main(tunnelNumber,tunnelLength,tunnelWall)
